@@ -22,6 +22,9 @@ Abasthan 免费 PHP 应用：微信知识库展示 + 链接/文档入库接口�
 # 健康检查
 curl "https://<app>.abasthan.app/ingest?ping=1&token=<token>"
 
+# 导出全部文章（本机同步脚本用）
+curl "https://<app>.abasthan.app/ingest?export=1&token=<token>"
+
 # 入库一条链接
 curl -X POST "https://<app>.abasthan.app/ingest" \
   -H "X-Auth-Token: <token>" \
@@ -44,7 +47,10 @@ https://mp.weixin.qq.com/s/xxx 后面随便写"
 
 ## Obsidian 同步
 
-两种方式（可同时开）：
+三种方式（可任选，也能同时开）：
 
-1. 服务端把每篇写成 `data/notes/<日期>-<标题>.md`，Obsidian 端用 Remotely Save / Syncthing 之类拉取。
-2. 配置 `GITHUB_TOKEN` + `GITHUB_REPO`，入库时直接 commit 到私有 vault 仓库的 `WXLink/Inbox/`。
+1. **本机脚本拉取（推荐，已可用）**：`sync_wxlink.ps1` 调 `/ingest?export=1`，把文章写成
+   `WXLink/articles/<公众号>/<日期> <标题>.md`，frontmatter 为
+   `title / source / received_at / account / category / description`。已存在的文件默认跳过。
+2. 服务端把每篇写成 `data/notes/<日期>-<标题>.md`，Obsidian 端用 Remotely Save / Syncthing 之类拉取。
+3. 配置 `GITHUB_TOKEN` + `GITHUB_REPO`，入库时直接 commit 到私有 vault 仓库的 `WXLink/Inbox/`。
