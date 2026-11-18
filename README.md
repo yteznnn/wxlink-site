@@ -75,6 +75,16 @@ schtasks /Create /TN wxlink-sync /TR 'powershell.exe -NoProfile -ExecutionPolicy
 
 日志写在 `sync_wxlink.log`（每行一次运行：时间、总数、新建、跳过）。
 
+## 数据持久性（重要）
+
+Abasthan 免费档**每次部署都会重建容器**：`~/app`（仓库文件）和 `~/wxdata` 都会重置。
+所以：
+
+- `~/wxdata` 只是运行时缓存，别当成长期存储。
+- 部署后展示页自动回退到仓库里的 `seed_articles.json`（当前 18 篇），不会白页。
+- 真正可靠的那份在本机 vault（`sync_wxlink.ps1` 每天写入），部署后跑一次同步就能对照补回。
+- 需要立刻回灌：用 `backup\articles-*.json` 循环 `POST /ingest`（实测 18 篇约 1 分钟）。
+
 ## 更新部署
 
 方式一：自动部署（已开启）
@@ -102,4 +112,3 @@ Abasthan 控制台 → Manage Enviroment 里配置，优先级高于 `config.php
 
 `config.php` 只在服务器上手工维护，不要放进仓库。
 
-<!-- deploy check: auto deploy via GitHub -->
