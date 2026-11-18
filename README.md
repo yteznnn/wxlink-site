@@ -72,7 +72,7 @@ powershell -ExecutionPolicy Bypass -File sync_wxlink.ps1
 # vault → 服务器（把在 Obsidian 里手工新增的文章回传到展示页）
 powershell -ExecutionPolicy Bypass -File sync_to_server.ps1
 
-# 已注册的任务：wxlink-sync 每天 09:00 拉取，wxlink-push 每天 09:05 回传
+# 已注册的任务：wxlink-sync 每天 09:00 拉取，wxlink-push 每 1 分钟回传（准实时）
 ```
 
 日志写在 `sync_wxlink.log`（每行一次运行：时间、方向、总数、新建、跳过）。
