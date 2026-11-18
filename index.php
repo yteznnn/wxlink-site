@@ -7,9 +7,12 @@ $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $base = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
 $rel = $base !== '' && strpos($path, $base) === 0 ? substr($path, strlen($base)) : $path;
 if (preg_match('#^/ingest(/|\.php)?/?$#', $rel)) {
-    require __DIR__ . '/ingest.php';
+    require_once __DIR__ . '/ingest.php';
     exit;
 }
+
+// 展示页访问密码（config.php 里配了 page_user / page_pass 才生效）
+wx_page_auth();
 
 $articles = wx_load();
 

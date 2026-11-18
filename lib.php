@@ -36,6 +36,8 @@ function wx_config(): array
 
     $defaults = [
         'token'         => '',
+        'page_user'     => '',
+        'page_pass'     => '',
         'data_file'     => __DIR__ . '/data/articles.json',
         'notes_dir'     => __DIR__ . '/data/notes',
         'seed_file'     => __DIR__ . '/seed_articles.json',
@@ -53,6 +55,33 @@ function wx_config(): array
     }
 
     return $cfg;
+}
+
+/**
+ * 展示页访问密码（HTTP Basic）。
+ * 配置了 page_user + page_pass 才生效；未配置则页面公开。
+ */
+function wx_page_auth(): void
+{
+    $cfg = wx_config();
+    if ($cfg['page_user'] === '' || $cfg['page_pass'] === '') {
+        return;
+    }
+
+    $user = $_SERVER['PHP_AUTH_USER'] ?? '';
+    $pass = $_SERVER['PHP_AUTH_PW'] ?? '';
+
+    if ($user !== '' && hash_equals($cfg['page_user'], (string)$user) && hash_equals($cfg['page_pass'], (string)$pass)) {
+        return;
+    }
+
+    header('WWW-Authenticate: Basic realm="wxlink", charset="UTF-8"');
+    http_response_code(401);
+    header('Content-Type: text/html; charset=utf-8');
+    echo '<!doctype html><meta charset="utf-8"><title>需要登录</title>'
+        . '<body style="font-family:system-ui,sans-serif;padding:48px;line-height:1.7">'
+        . '<h2>需要登录</h2><p>这个页面是私人的，请输入账号与密码。</p></body>';
+    exit;
 }
 
 /** 读全部文章 */
