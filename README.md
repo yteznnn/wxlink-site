@@ -2,6 +2,8 @@
 
 Abasthan 免费 PHP 应用：微信知识库展示 + 链接/文档入库接口。
 
+线上地址：https://wxlink-notes.abasthan.app
+
 ## 文件
 
 | 文件 | 作用 |
@@ -27,19 +29,19 @@ Abasthan 免费 PHP 应用：微信知识库展示 + 链接/文档入库接口�
 
 ```bash
 # 健康检查
-curl "https://<app>.abasthan.app/ingest?ping=1&token=<token>"
+curl "https://wxlink-notes.abasthan.app/ingest?ping=1&token=<token>"
 
 # 导出全部文章（本机同步脚本用）
-curl "https://<app>.abasthan.app/ingest?export=1&token=<token>"
+curl "https://wxlink-notes.abasthan.app/ingest?export=1&token=<token>"
 
 # 入库一条链接
-curl -X POST "https://<app>.abasthan.app/ingest" \
+curl -X POST "https://wxlink-notes.abasthan.app/ingest" \
   -H "X-Auth-Token: <token>" \
   -H "Content-Type: application/json" \
   -d '{"url":"https://mp.weixin.qq.com/s/xxx","title":"标题","account":"公众号","date":"2026-11-18"}'
 
 # 纯文本（自动抓第一条链接，首行当标题）
-curl -X POST "https://<app>.abasthan.app/ingest" \
+curl -X POST "https://wxlink-notes.abasthan.app/ingest" \
   -H "X-Auth-Token: <token>" \
   --data-binary "标题第一行
 https://mp.weixin.qq.com/s/xxx 后面随便写"
@@ -75,7 +77,27 @@ schtasks /Create /TN wxlink-sync /TR 'powershell.exe -NoProfile -ExecutionPolicy
 
 ## 更新部署
 
+方式一：自动部署（已开启）
+1. 把改动提交到 GitHub 仓库 `yteznnn/wxlink-site` 的 `main` 分支。
+2. Abasthan 会自动重新部署。
+3. 注意：重建容器会清空 `~/wxdata`，展示页会回退到仓库自带的 `seed_articles.json`；
+   用 `backup\articles-*.json` 通过 `/ingest` 批量回灌即可。
+
+方式二：手工替换单个文件
 1. 改完文件传到 GitHub 仓库。
 2. 服务器上 `cd ~/app && curl -s -o <文件> https://raw.githubusercontent.com/<repo>/main/<文件>?n=$RANDOM`。
 3. `md5sum` 与本地比对，`php -l` 过一遍。
-4. `config.php` 只在服务器上手工维护，不要放进仓库。
+
+## 密钥（环境变量优先）
+
+Abasthan 控制台 → Manage Enviroment 里配置，优先级高于 `config.php`，
+重新部署后也不会丢：
+
+| 变量 | 含义 |
+| --- | --- |
+| `WXLINK_TOKEN` | 接口 token |
+| `WXLINK_USER` | 展示页用户名 |
+| `WXLINK_PASS` | 展示页密码 |
+| `WXLINK_DATA` / `WXLINK_SEED` | 可选，自定义数据/种子文件路径 |
+
+`config.php` 只在服务器上手工维护，不要放进仓库。
