@@ -1,6 +1,6 @@
 <?php
 // index.php — 微信知识库展示页 + /ingest 路由
-require __DIR__ . '/lib.php';
+require_once __DIR__ . '/lib.php';
 
 // 让 /ingest 也能指向 ingest.php（nginx 没有 rewrite 时靠这里兜底）
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';

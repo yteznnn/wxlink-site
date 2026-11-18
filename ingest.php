@@ -2,7 +2,7 @@
 // ingest.php — 微信 / clawbot 入库接口
 // 用法：POST JSON，头部 X-Auth-Token: <WXLINK_TOKEN>
 // 支持字段：url, title, account, desc, summary, text, date, category
-require __DIR__ . '/lib.php';
+require_once __DIR__ . '/lib.php';
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
