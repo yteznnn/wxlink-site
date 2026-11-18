@@ -13,11 +13,13 @@ if (isset($_GET['ping'])) {
     }
     $articles = wx_load();
     $cfg = wx_config();
+    $dataDir = dirname($cfg['data_file']);
+    $writable = is_dir($dataDir) ? is_writable($dataDir) : is_writable(dirname($dataDir));
     wx_json([
         'ok'    => true,
         'service' => 'wxlink-ingest',
         'count' => count($articles),
-        'writable' => is_writable(dirname($cfg['data_file'])),
+        'writable' => $writable,
         'github' => $cfg['github_repo'] !== '' && $cfg['github_token'] !== '',
         'php'   => PHP_VERSION,
     ]);
