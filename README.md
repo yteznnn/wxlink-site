@@ -101,3 +101,5 @@ Abasthan 控制台 → Manage Enviroment 里配置，优先级高于 `config.php
 | `WXLINK_DATA` / `WXLINK_SEED` | 可选，自定义数据/种子文件路径 |
 
 `config.php` 只在服务器上手工维护，不要放进仓库。
+
+<!-- deploy check: auto deploy via GitHub -->
