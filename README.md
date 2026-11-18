@@ -63,17 +63,20 @@ https://mp.weixin.qq.com/s/xxx 后面随便写"
 2. 服务端把每篇写成 `wxdata/notes/<日期>-<标题>.md`，Obsidian 端用 Remotely Save / Syncthing 之类拉取。
 3. 配置 `GITHUB_TOKEN` + `GITHUB_REPO`，入库时直接 commit 到私有 vault 仓库的 `WXLink/Inbox/`。
 
-本机定时同步（Windows）：
+本机定时同步（Windows，双向）：
 
 ```powershell
-# 立即跑一次（新文章写进 vault，已存在的跳过）
+# 服务器 → vault（新文章写进 vault，已存在的跳过）
 powershell -ExecutionPolicy Bypass -File sync_wxlink.ps1
 
-# 每天 09:00 自动跑（已注册的任务名为 wxlink-sync）
-schtasks /Create /TN wxlink-sync /TR 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "<路径>\sync_wxlink.ps1"' /SC DAILY /ST 09:00 /F
+# vault → 服务器（把在 Obsidian 里手工新增的文章回传到展示页）
+powershell -ExecutionPolicy Bypass -File sync_to_server.ps1
+
+# 已注册的任务：wxlink-sync 每天 09:00 拉取，wxlink-push 每天 09:05 回传
 ```
 
-日志写在 `sync_wxlink.log`（每行一次运行：时间、总数、新建、跳过）。
+日志写在 `sync_wxlink.log`（每行一次运行：时间、方向、总数、新建、跳过）。
+`sync_to_server.ps1` 用 frontmatter 里的 `source` 作为 URL，靠服务器按 URL 去重，重复跑不会重复入库。
 
 ## 数据持久性（重要）
 
@@ -81,9 +84,10 @@ Abasthan 免费档**每次部署都会重建容器**：`~/app`（仓库文件）
 所以：
 
 - `~/wxdata` 只是运行时缓存，别当成长期存储。
-- 部署后展示页自动回退到仓库里的 `seed_articles.json`（当前 18 篇），不会白页。
-- 真正可靠的那份在本机 vault（`sync_wxlink.ps1` 每天写入），部署后跑一次同步就能对照补回。
-- 需要立刻回灌：用 `backup\articles-*.json` 循环 `POST /ingest`（实测 18 篇约 1 分钟）。
+- 部署后展示页自动回退到仓库里的 `seed_articles.json`（18 篇），不会白页；
+  跑一次 `sync_to_server.ps1` 就会把 vault 里的全部文章（当前 97 篇）回传到页面。
+- 真正可靠的那份在本机 vault，它是唯一长期副本。
+- 也可以直接用 `backup\articles-*.json` 循环 `POST /ingest` 回灌。
 
 ## 更新部署
 
