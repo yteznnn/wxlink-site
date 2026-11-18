@@ -19,9 +19,13 @@ function wx_config(): array
     }
 
     // 环境变量优先（Abasthan 控制台 → Environment 里配置）
+    // 这样即使重新部署、config.php 被覆盖，密钥也不会丢
     $envMap = [
         'WXLINK_TOKEN'  => 'token',
+        'WXLINK_USER'   => 'page_user',
+        'WXLINK_PASS'   => 'page_pass',
         'WXLINK_DATA'   => 'data_file',
+        'WXLINK_SEED'   => 'seed_file',
         'GITHUB_TOKEN'  => 'github_token',
         'GITHUB_REPO'   => 'github_repo',   // 例：user/vault
         'GITHUB_PATH'   => 'github_path',   // 例：WXLink/Inbox
@@ -38,9 +42,9 @@ function wx_config(): array
         'token'         => '',
         'page_user'     => '',
         'page_pass'     => '',
-        'data_file'     => __DIR__ . '/data/articles.json',
-        'notes_dir'     => __DIR__ . '/data/notes',
-        'seed_file'     => __DIR__ . '/seed_articles.json',
+        'data_file'     => __DIR__ . '/../wxdata/articles.json',
+        'notes_dir'     => __DIR__ . '/../wxdata/notes',
+        'seed_file'     => __DIR__ . '/../wxdata/seed_articles.json',
         'github_token'  => '',
         'github_repo'   => '',
         'github_path'   => 'WXLink/Inbox',
@@ -100,15 +104,19 @@ function wx_load(): array
         }
     }
 
-    // 首次运行用种子数据
-    $seed = $cfg['seed_file'];
-    if (is_file($seed)) {
+    // 首次运行用种子数据：先看 wxdata 里的那份，再退回仓库自带的 seed_articles.json
+    // （重新部署后 wxdata 可能被清空，靠这一条不至于白页）
+    foreach ([$cfg['seed_file'], __DIR__ . '/seed_articles.json'] as $seed) {
+        if ($seed === '' || !is_file($seed)) {
+            continue;
+        }
         $raw = @file_get_contents($seed);
-        if ($raw !== false) {
-            $data = json_decode($raw, true);
-            if (is_array($data)) {
-                return $data;
-            }
+        if ($raw === false) {
+            continue;
+        }
+        $data = json_decode($raw, true);
+        if (is_array($data)) {
+            return $data;
         }
     }
 
