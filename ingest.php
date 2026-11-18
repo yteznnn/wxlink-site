@@ -23,6 +23,15 @@ if (isset($_GET['ping'])) {
     ]);
 }
 
+// ---- 导出（供本机同步脚本拉取，需 token） ----
+if (isset($_GET['export'])) {
+    if (!wx_require_token()) {
+        wx_json(['ok' => false, 'error' => 'unauthorized'], 401);
+    }
+    $articles = wx_load();
+    wx_json(['ok' => true, 'count' => count($articles), 'articles' => $articles]);
+}
+
 if (!wx_require_token()) {
     wx_json(['ok' => false, 'error' => 'unauthorized: 缺少或错误的 token'], 401);
 }
